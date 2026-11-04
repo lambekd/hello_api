@@ -23,3 +23,23 @@ I clicked the localhost:8080/hello link and the link couldn't be found. Troubles
 ## 2026-11-04 01:11 UTC
 
 (Screenshot only, no text: browser at http://localhost:8081/hello showing the JSON response {"message": "Hey there! What's up?"})
+
+## 2026-11-04 23:07 UTC
+
+Add two more GET endpoints that call Google's Gemini model through Vertex AI,
+using the google-genai Python SDK.
+- /haiku returns a short haiku about DevOps, written by Gemini, as JSON.
+- /fortune returns a one-sentence, software-themed fortune-cookie message,
+  written by Gemini, as JSON.
+
+Requirements:
+- Create the client with genai.Client(vertexai=True, project=..., location=...).
+  Authenticate with Application Default Credentials only: no API keys and no key files.
+- Read these settings from environment variables: GOOGLE_CLOUD_PROJECT (required),
+  GOOGLE_CLOUD_LOCATION (default "global"), and GEMINI_MODEL
+  (default "gemini-3.1-flash-lite").
+- The prompts are fixed in the code. These endpoints take no input from the user.
+- Limit each response to about 100 output tokens.
+- If the Gemini call fails, return a clear JSON error with a sensible status code
+  instead of crashing.
+- Update requirements.txt and the README.

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A small FastAPI app that says hello and goodbye"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
-dependencies = ["fastapi (>=0.162.0,<0.163.0)", "uvicorn (>=0.54.0,<0.55.0)"]
+dependencies = ["fastapi (>=0.162.0,<0.163.0)", "uvicorn (>=0.54.0,<0.55.0)", "google-genai (>=2.34.0,<3.0.0)"]
 
 [tool.poetry]
 package-mode = false
