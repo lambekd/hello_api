@@ -15,7 +15,10 @@ FORTUNE_PROMPT = (
     "Write a one-sentence, software-themed fortune-cookie message. "
     "Reply with only the message."
 )
+ASK_SYSTEM_INSTRUCTION = "Answer the user's question in three sentences or fewer."
 MAX_OUTPUT_TOKENS = 100
+ASK_MAX_OUTPUT_TOKENS = 200
+ASK_MAX_QUESTION_LENGTH = 200
 TIMEOUT_MS = 30_000
 
 app = FastAPI()
@@ -31,7 +34,7 @@ def get_client(project, location):
     )
 
 
-def ask_gemini(prompt):
+def ask_gemini(prompt, max_output_tokens=MAX_OUTPUT_TOKENS, system_instruction=None):
     project = os.environ.get("GOOGLE_CLOUD_PROJECT")
     if not project:
         return JSONResponse(
@@ -45,7 +48,10 @@ def ask_gemini(prompt):
         response = get_client(project, location).models.generate_content(
             model=model,
             contents=prompt,
-            config=types.GenerateContentConfig(max_output_tokens=MAX_OUTPUT_TOKENS),
+            config=types.GenerateContentConfig(
+                max_output_tokens=max_output_tokens,
+                system_instruction=system_instruction,
+            ),
         )
         text = response.text
     except Exception:
@@ -82,6 +88,28 @@ def haiku():
 @app.get("/fortune")
 def fortune():
     return ask_gemini(FORTUNE_PROMPT)
+
+
+@app.get("/ask")
+def ask(q: str | None = None):
+    question = (q or "").strip()
+    if not question:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Query parameter 'q' is required and can't be empty."},
+        )
+    if len(question) > ASK_MAX_QUESTION_LENGTH:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": f"Query parameter 'q' can't be longer than {ASK_MAX_QUESTION_LENGTH} characters."
+            },
+        )
+    return ask_gemini(
+        question,
+        max_output_tokens=ASK_MAX_OUTPUT_TOKENS,
+        system_instruction=ASK_SYSTEM_INSTRUCTION,
+    )
 
 
 if __name__ == "__main__":
